@@ -1,3 +1,5 @@
+package modele;
+
 public class InstanceFilm {
 
     private int mov_id;
@@ -13,7 +15,7 @@ public class InstanceFilm {
 
     @Override
     public String toString() {
-        return "InstanceFilm{" +
+        return "modele.InstanceFilm{" +
                 "mov_id=" + mov_id +
                 ", imdb_id='" + imdb_id + '\'' +
                 ", title='" + title + '\'' +

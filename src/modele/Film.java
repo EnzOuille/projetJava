@@ -1,12 +1,23 @@
+package modele;
+
+import connection.ConnectionSingleton;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Observable;
 
-public class Film {
+public class Film extends Observable {
 
-    private static int currentMovie;
+    private static int currentMovie = 1;
+    private InstanceFilm film = null;
+
+    public Film(){
+        this.film = getFilm(currentMovie);
+        System.out.println(this.film.toString());
+    }
 
     public static InstanceFilm getFilm(int num) {
         ConnectionSingleton cs = ConnectionSingleton.getInstance();
@@ -15,10 +26,10 @@ public class Film {
             PreparedStatement ps = c.prepareStatement("SELECT * FROM movie WHERE mov_id = ?");
             ps.setInt(1, num);
             ResultSet res = ps.executeQuery();
-            if (res.next()) {
+            if (res.first()){
                 return constructeurInstanceFilm(res);
             }else{
-                return null;
+                return getFilm(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -85,5 +96,17 @@ public class Film {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    public int getCurrentMovie(){
+        return currentMovie;
+    }
+
+    public InstanceFilm getFilm(){
+        return film;
+    }
+    public void update(){
+        this.setChanged();
+        this.notifyObservers();
     }
 }
