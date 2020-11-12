@@ -1,32 +1,39 @@
 package vue;
 
 import modele.Film;
+import modele.Participant;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 public class VueAffichage extends JPanel implements Observer {
 
-    private Film modele;
-    private JLabel lbl_titre;
-    private JLabel ic_film;
-    private JLabel lbl_annee;
-    private JLabel lbl_note;
-    private JLabel lbl_participant;
-    private JLabel[] lbl_participants;
-    private JLabel lbl_genres;
-    private JTextArea lbl_synopsis;
-    private JPanel participants;
-    private JTextField titre_search;
-    private JTextField nom_search;
-    private JButton go1;
-    private JButton go2;
-    private JButton prec;
-    private JButton suiv;
-    private JTextField num;
+    public Film modele;
+    public JLabel lbl_titre;
+    public JLabel ic_film;
+    public JLabel lbl_annee;
+    public JLabel lbl_note;
+    public JLabel lbl_participant;
+    public JLabel[] lbl_participants;
+    public JLabel lbl_genres;
+    public JTextArea lbl_synopsis;
+    public JPanel participants;
+    public JTextField titre_search;
+    public JTextField nom_search;
+    public JButton go1;
+    public JButton go2;
+    public JButton prec;
+    public JButton suiv;
+    public JTextField num;
 
     public VueAffichage(Film mod){
         modele = mod;
@@ -62,8 +69,8 @@ public class VueAffichage extends JPanel implements Observer {
         lbl_synopsis.setLineWrap(true);
         lbl_synopsis.setWrapStyleWord(true);
         lbl_synopsis.setEditable(false);
-        lbl_synopsis.setPreferredSize(new Dimension(this.getWidth(),100));
-        ic_film = new JLabel(new ImageIcon("img/test.jpg"));
+        lbl_synopsis.setPreferredSize(new Dimension(this.getWidth(),300));
+        ic_film = new JLabel( new ImageIcon("img/zero_two.png"));
         titre_search = new JTextField("Recherche par titre");
         nom_search = new JTextField("Recherche par nom (acteur, ...)");
         go1 = new JButton("Go");
@@ -87,6 +94,7 @@ public class VueAffichage extends JPanel implements Observer {
         suiv.setForeground(Color.WHITE);
         suiv.setPreferredSize(d);
         num = new JTextField("ID film");
+        num.setHorizontalAlignment(JTextField.CENTER);
     }
 
     public void positionnementFilm(){
@@ -181,12 +189,25 @@ public class VueAffichage extends JPanel implements Observer {
     }
 
     public void participants(GridBagConstraints c){
-        JPanel ensemble = new JPanel();
-        ensemble.setLayout(new FlowLayout(FlowLayout.CENTER));
-        ensemble.add(lbl_participant);
+        participants = new JPanel();
+        participants.setLayout(new GridBagLayout());
+        participants.add(lbl_participant);
         c.gridx = 2;
         c.gridy = 6;
-        this.add(ensemble,c);
+        this.add(participants,c);
+    }
+
+    public void affichageParticipants(){
+
+        ArrayList<Participant> part = modele.getParticipants();
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        part.forEach(x ->{
+            JButton temp = new JButton(x.getPeo_name() + " : " + x.getRol_name());
+            participants.add(temp,c);
+            c.gridy++;
+        });
     }
 
     @Override
@@ -196,6 +217,14 @@ public class VueAffichage extends JPanel implements Observer {
         lbl_annee.setText(String.valueOf(modele.getFilm().getAnnee()));
         lbl_genres.setText(modele.getFilm().getGenres());
         lbl_synopsis.setText(modele.getFilm().getSynopsis());
-        ic_film = new JLabel(new ImageIcon(modele.getFilm().getPoster()));
+        num.setText(String.valueOf(modele.getFilm().getMov_id()));
+        affichageParticipants();
+        try {
+            URL url = new URL(modele.getFilm().getPoster());
+            BufferedImage image = ImageIO.read(url);
+            ic_film.setIcon(new ImageIcon(image));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

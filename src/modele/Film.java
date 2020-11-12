@@ -19,7 +19,7 @@ public class Film extends Observable {
         System.out.println(this.film.toString());
     }
 
-    public static InstanceFilm getFilm(int num) {
+    public InstanceFilm getFilm(int num) {
         ConnectionSingleton cs = ConnectionSingleton.getInstance();
         Connection c = cs.getConnection();
         try {
@@ -37,17 +37,22 @@ public class Film extends Observable {
         }
     }
 
-    public static InstanceFilm getNext(){
+    public void getNext(){
         currentMovie += 1;
-        return getFilm(currentMovie);
+        film = getFilm(currentMovie);
     }
 
-    public static InstanceFilm previous(){
+    public void previous(){
         if (currentMovie>=1) currentMovie --;
-        return getFilm(currentMovie);
+        film = getFilm(currentMovie);
     }
 
-    public static InstanceFilm constructeurInstanceFilm(ResultSet res) {
+    public void getSpecialFilm(int id){
+        currentMovie = id;
+        film = getFilm(currentMovie);
+    }
+
+    public InstanceFilm constructeurInstanceFilm(ResultSet res) {
         try {
             InstanceFilm ret = new InstanceFilm(res.getInt("mov_id"), res.getString("imdb_id"), res.getString("title"), res.getString("poster"), res.getString("genres"), res.getString("release_date"), res.getString("type"), res.getString("synopsis"), res.getDouble("rating"), res.getInt("year"), res.getBoolean("active"));
             return ret;
@@ -57,7 +62,7 @@ public class Film extends Observable {
         }
     }
 
-    public static double cosinus_sim(int mov_id1, int mov_id2){
+    public double cosinus_sim(int mov_id1, int mov_id2){
         ConnectionSingleton cs = ConnectionSingleton.getInstance();
         Connection c = cs.getConnection();
         try {
@@ -105,6 +110,26 @@ public class Film extends Observable {
     public InstanceFilm getFilm(){
         return film;
     }
+
+    public ArrayList<Participant> getParticipants() {
+        ConnectionSingleton cs = ConnectionSingleton.getInstance();
+        Connection c = cs.getConnection();
+        try{
+            PreparedStatement ps = c.prepareStatement("SELECT * FROM role INNER JOIN people on people.peo_id = role.peo_id WHERE mov_id = ?");
+            ps.setInt(1,currentMovie);
+            ResultSet res = ps.executeQuery();
+            ArrayList<Participant> participants = new ArrayList<>();
+            while(res.next()){
+                Participant temp = new Participant(res.getInt("role.peo_id"),res.getInt("mov_id"),res.getString("peo_name"),res.getString("rol_name"),res.getInt("rol_id"));
+                participants.add(temp);
+            }
+            return participants;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void update(){
         this.setChanged();
         this.notifyObservers();
