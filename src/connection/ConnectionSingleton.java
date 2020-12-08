@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * The type Connection singleton.
+ */
 public class ConnectionSingleton {
     private Connection c;
     private static ConnectionSingleton s;
@@ -17,6 +20,11 @@ public class ConnectionSingleton {
         }
     }
 
+    /**
+     * Crées une instance de connexion si il n'y en a pas en cours
+     * Sinon retourne celle courante
+     * @return the connection singleton
+     */
     public static ConnectionSingleton getInstance(){
         if (s == null){
             s = new ConnectionSingleton();
@@ -32,6 +40,11 @@ public class ConnectionSingleton {
         return s;
     }
 
+    /**
+     * Get connection connection.
+     *
+     * @return the connection
+     */
     public Connection getConnection(){
         return c;
     }
